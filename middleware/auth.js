@@ -3,14 +3,8 @@ const jwtUtils = require('../utils/jwt');
 module.exports = (req, res, next) => {
     try {
         const authToken = req.cookies['authToken'];
-
-        console.log(authToken)
-
         if (authToken) {
-            const decoded = jwtUtils.verifyToken(authToken, {
-                localSecret: process.env.LOCAL_SECRET,
-                user: process.env.USER
-            });
+            const decoded = jwtUtils.verifyToken(authToken);
 
             console.log(decoded)
 
@@ -26,13 +20,12 @@ module.exports = (req, res, next) => {
                 next();
             } else {
                 res.clearCookie('authToken');
-                res.redirect('/');
             }
         } else {
-            res.redirect('/');
+            next();
         }
     } catch (error) {
         console.error('Error in authentication middleware:', error);
-        res.redirect('/');
+        next();
     }
 };

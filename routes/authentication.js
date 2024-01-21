@@ -17,10 +17,10 @@ router.post('/login', function(req, res, next) {
     }
 });
 
-router.post('/logout', function(req, res, next) {
+router.get('/logout', function(req, res, next) {
     res.clearCookie('authToken');
 
-    res.json({ message: 'Logout successful' });
+    res.redirect('/')
 });
 
 module.exports = router;
