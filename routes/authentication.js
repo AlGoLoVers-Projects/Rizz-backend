@@ -9,7 +9,7 @@ router.post('/login', function(req, res, next) {
     const expectedCredentials = process.env.CREDENTIALS;
 
     if (username === expectedUsername && credentials === expectedCredentials) {
-        const token = jwtUtils.generateToken(process.env.LOCAL_SECRET, expectedUsername);
+        const token = jwtUtils.generateToken();
         res.cookie('authToken', token, { httpOnly: true });
         res.redirect('/dashboard');
     } else {

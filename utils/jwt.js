@@ -1,30 +1,33 @@
 const jwt = require('jsonwebtoken');
 
-const JWT_SECRET_KEY = process.env.JWT_SECRET_KEY
-
-const generateToken = (localSecret, user) => {
+const generateToken = () => {
     const payload = {
-        localSecret,
-        user,
+        localSecret: process.env.LOCAL_SECRET,
+        user: process.env.USERNAME,
     };
 
-    return jwt.sign(payload, JWT_SECRET_KEY, {expiresIn: '1h'});
+    console.log(payload)
+
+    return jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
 };
 
-const verifyToken = (token, expectedClaims) => {
+const verifyToken = (token) => {
     try {
-        const decoded = jwt.verify(token, JWT_SECRET_KEY);
+        const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
 
-        if (expectedClaims) {
-            for (const claim in expectedClaims) {
-                if (decoded[claim] !== expectedClaims[claim]) {
-                    throw new Error(`Claim '${claim}' does not match`);
-                }
-            }
+        console.log(decoded, process.env.LOCAL_SECRET, process.env.USERNAME)
+
+        // Check specific claims
+        if (
+            decoded.localSecret !== process.env.LOCAL_SECRET ||
+            decoded.user !== process.env.USERNAME
+        ) {
+            throw new Error('Invalid claims');
         }
 
         return decoded;
     } catch (error) {
+        console.error(error);
         throw new Error('Invalid token');
     }
 };
