@@ -16,6 +16,7 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'frontend', 'build')));
+app.use('/images', authenticate, express.static(path.join(__dirname, 'images')));
 
 app.use('/auth', authenticationRouter);
 app.use('/api', authenticate, apiRouter)

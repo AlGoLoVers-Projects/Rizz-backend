@@ -57,8 +57,18 @@ router.post('/uploadImage', upload.array('images'), function (req, res, next) {
     });
 });
 
-router.get('/getImage', function (req, res, next) {
-    res.send('respond with a resource');
+router.get('/getImages', function (req, res, next) {
+    const imagesFolder = path.join(__dirname, '..', 'images');
+    fs.readdir(imagesFolder, (err, files) => {
+        if (err) {
+            console.error('Error reading images folder:', err);
+            return res.status(500).json({ error: 'Internal Server Error' });
+        }
+
+        const imageFiles = files.filter(file => /\.(jpg|jpeg|png|gif)$/i.test(file));
+        const imageUrls = imageFiles.map(file => `/images/${file}`);
+        res.json({ images: imageUrls });
+    });
 });
 
 router.get('/getApiKey', function (req, res, next) {
