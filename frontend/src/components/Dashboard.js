@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 
 function Dashboard() {
     const [apiToken, setApiToken] = useState(null);
+    const [images, setImages] = useState([]);
+    const [error, setError] = useState(null);
 
     const handleLogout = () => {
         localStorage.removeItem('token');
@@ -28,6 +30,26 @@ function Dashboard() {
             .catch(error => {
                 console.error('Error fetching API token:', error);
                 alert("User not authenticated, try signing out and signing in again")
+            });
+
+        // Fetch image URLs from the authenticated route
+        fetch('/api/getImages', {
+            headers: {
+                Authorization: storedToken,
+            },
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Failed to fetch images');
+                }
+                return response.json();
+            })
+            .then(data => {
+                setImages(data.images);
+            })
+            .catch(err => {
+                console.error('Error fetching images:', err);
+                setError('Error fetching images. Please try again.');
             });
     }, []);
 
@@ -108,6 +130,7 @@ function Dashboard() {
                         </div>
                     </div>
 
+                    {/* Card 2: API Token */}
                     <div className="card shadow mt-2">
                         <div className="card-body">
                             <h5 className="card-title">API Token</h5>
@@ -125,6 +148,25 @@ function Dashboard() {
                                 <button type="button" className="btn btn-info" disabled>
                                     Generating Token...
                                 </button>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* Card 3: Image Grid */}
+                    <div className="card mt-2">
+                        <div className="card-body">
+                            <h5 className="card-title">Image Grid</h5>
+                            {error ? (
+                                <div>Error: {error}</div>
+                            ) : (
+                                <div className="row row-cols-2 row-cols-md-4 g-4">
+                                    {images.map(imageUrl => (
+                                        <div className="col" key={imageUrl}>
+                                            <img src={imageUrl} className="img-thumbnail" alt="Image" />
+                                            {imageUrl}
+                                        </div>
+                                    ))}
+                                </div>
                             )}
                         </div>
                     </div>
