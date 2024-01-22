@@ -24,13 +24,13 @@ router.get('/generateImageWithText', async function (req, res, next) {
         const randomSentence = sentences[Math.floor(Math.random() * sentences.length)];
 
         // Load the font
-        const font = await Jimp.loadFont(Jimp.FONT_SANS_32_WHITE);
+        const font = await Jimp.loadFont(Jimp.FONT_SANS_32_BLACK);
 
         // Calculate position for responsive text at the bottom
         const textWidth = Jimp.measureText(font, randomSentence);
         const textHeight = Jimp.measureTextHeight(font, randomSentence, image.bitmap.width);
 
-        // Add text to the image at the bottom
+        // Add text to the image at the bottom with red color and black border
         image.print(
             font,
             (image.bitmap.width - textWidth) / 2, // Center horizontally
@@ -38,17 +38,15 @@ router.get('/generateImageWithText', async function (req, res, next) {
             randomSentence
         );
 
-        // Save the modified image to a temporary file
-        const modifiedImagePath = path.join(__dirname, '..', 'temp', `${uuidv4()}.png`);
-        await image.writeAsync(modifiedImagePath);
+        // Convert the modified image to a buffer
+        const modifiedImageBuffer = await image.getBufferAsync(Jimp.MIME_PNG);
 
-        // Send the modified image path
-        res.json({
-            success: true,
-            data: {
-                imagePath: modifiedImagePath,
-            },
+        // Send the modified image as a response
+        res.writeHead(200, {
+            'Content-Type': 'image/png',
+            'Content-Length': modifiedImageBuffer.length,
         });
+        res.end(modifiedImageBuffer);
     } catch (error) {
         console.error('Error generating image with text:', error);
         res.status(500).json({ error: 'Internal Server Error' });
