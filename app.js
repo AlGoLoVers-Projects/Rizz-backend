@@ -9,6 +9,7 @@ dotenv.config();
 
 const authenticationRouter = require('./routes/authentication')
 const apiRouter = require('./routes/api');
+const imageRouter = require('./routes/image');
 
 const app = express();
 app.use(logger('dev'));
@@ -19,6 +20,7 @@ app.use(express.static(path.join(__dirname, 'frontend', 'build')));
 app.use('/images', authenticate, express.static(path.join(__dirname, 'images')));
 
 app.use('/auth', authenticationRouter);
+app.use('/image', imageRouter);
 app.use('/api', authenticate, apiRouter)
 
 app.get('*', (req, res) => {
