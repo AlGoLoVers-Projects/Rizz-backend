@@ -1,12 +1,8 @@
-// authenticationMiddleware.js
-
 const jwtUtils = require('../utils/jwt');
 
 module.exports = (req, res, next) => {
     try {
         const authToken = req.headers.authorization
-
-        console.log(authToken)
 
         if (authToken) {
             const decoded = jwtUtils.verifyToken(authToken, {

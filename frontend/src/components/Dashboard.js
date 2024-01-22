@@ -36,6 +36,49 @@ function Dashboard() {
         alert('Token copied to clipboard!');
     };
 
+    const handleImageUpload = async (e) => {
+        e.preventDefault();
+
+        const fileInput = document.getElementById('imageUpload');
+        const files = fileInput.files;
+
+        // Use storedToken from localStorage
+        const storedToken = localStorage.getItem('token');
+
+        if (!storedToken) {
+            alert('API token not available. Please try again.');
+            return;
+        }
+
+        const formData = new FormData();
+
+        // Append each file individually
+        for (let i = 0; i < files.length; i++) {
+            formData.append('images', files[i]);
+        }
+
+        try {
+            const response = await fetch('/api/uploadImage', {
+                method: 'POST',
+                headers: {
+                    Authorization: storedToken, // Use storedToken
+                },
+                body: formData,
+            });
+
+            if (!response.ok) {
+                throw new Error('Image upload failed');
+            }
+
+            const result = await response.json();
+            alert('Images uploaded successfully:', result);
+        } catch (error) {
+            console.error('Image upload error:', error);
+            alert('Error uploading images. Please try again.');
+        }
+    };
+
+
     return (
         <div>
             <nav className="navbar navbar-light bg-light">
@@ -53,7 +96,7 @@ function Dashboard() {
                     <div className="card shadow">
                         <div className="card-body">
                             <h5 className="card-title">Upload Image</h5>
-                            <form>
+                            <form onSubmit={handleImageUpload}>
                                 <div className="mb-3">
                                     <label htmlFor="imageUpload" className="form-label">Select Images</label>
                                     <input type="file" className="form-control" id="imageUpload" multiple />

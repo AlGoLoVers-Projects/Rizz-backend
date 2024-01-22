@@ -8,7 +8,7 @@ const { v4: uuidv4 } = require('uuid');
 
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        const uploadPath = path.join(__dirname, 'images');
+        const uploadPath = path.join(__dirname, '..', 'images');
 
         if (!fs.existsSync(uploadPath)) {
             fs.mkdirSync(uploadPath);
@@ -42,7 +42,7 @@ const upload = multer({
     },
 });
 
-router.post('/uploadImage', upload.array('images', 5), function (req, res, next) {
+router.post('/uploadImage', upload.array('images'), function (req, res, next) {
     const uploadedFiles = req.files;
 
     res.json({
