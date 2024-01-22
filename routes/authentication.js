@@ -28,10 +28,7 @@ router.get('/verifyToken', (req, res, next) => {
     const authToken = req.body.token
 
     if (authToken) {
-        const decoded = jwtUtils.verifyToken(authToken, {
-            localSecret: process.env.LOCAL_SECRET,
-            user: process.env.USERNAME,
-        });
+        const decoded = jwtUtils.verifyToken(authToken);
 
         if (decoded) {
             req.user = decoded;

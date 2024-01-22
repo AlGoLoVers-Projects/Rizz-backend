@@ -5,7 +5,7 @@ const router = express.Router();
 const fs = require('fs');
 const path = require('path');
 
-router.get('/generateImageWithText', async function (req, res, next) {
+router.get('/generateImageWithRizz', async function (req, res, next) {
     try {
         // Fetch all images
         const imagesFolder = path.join(__dirname, '..', 'images');

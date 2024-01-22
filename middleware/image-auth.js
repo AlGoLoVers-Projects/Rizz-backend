@@ -5,7 +5,7 @@ module.exports = (req, res, next) => {
         const authToken = req.headers.authorization
 
         if (authToken) {
-            const decoded = jwtUtils.verifyToken(authToken);
+            const decoded = jwtUtils.verifyImageToken(authToken);
 
             if (decoded) {
                 next();
@@ -13,9 +13,9 @@ module.exports = (req, res, next) => {
             }
         }
 
-        return res.status(401).json({success: false, message: 'Verification failed'});
+        return res.status(401).json({success: false, message: 'Verification failed for image auth'});
     } catch (error) {
-        console.error('Error in authentication middleware:', error);
+        console.error('Error in image authentication middleware:', error);
         return res.status(401).json({success: false, message: 'Verification failed'});
     }
 };

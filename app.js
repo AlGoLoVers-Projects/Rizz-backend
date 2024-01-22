@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const dotenv = require('dotenv')
 const authenticate = require('./middleware/auth')
+const imageAuth = require('./middleware/image-auth')
 
 dotenv.config();
 
@@ -20,7 +21,7 @@ app.use(express.static(path.join(__dirname, 'frontend', 'build')));
 app.use('/images', authenticate, express.static(path.join(__dirname, 'images')));
 
 app.use('/auth', authenticationRouter);
-app.use('/image', imageRouter);
+app.use('/image', imageAuth, imageRouter);
 app.use('/api', authenticate, apiRouter)
 
 app.get('*', (req, res) => {
