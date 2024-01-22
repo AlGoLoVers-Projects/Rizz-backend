@@ -32,7 +32,7 @@ function Dashboard() {
                 alert("User not authenticated, try signing out and signing in again")
             });
 
-        // Fetch image URLs from the authenticated route
+        // Fetch image data from the authenticated route
         fetch('/api/getImages', {
             headers: {
                 Authorization: storedToken,
@@ -100,7 +100,6 @@ function Dashboard() {
         }
     };
 
-
     return (
         <div>
             <nav className="navbar navbar-light bg-light">
@@ -160,10 +159,11 @@ function Dashboard() {
                                 <div>Error: {error}</div>
                             ) : (
                                 <div className="row row-cols-2 row-cols-md-4 g-4">
-                                    {images.map(imageUrl => (
-                                        <div className="col" key={imageUrl}>
-                                            <img src={imageUrl} className="img-thumbnail" alt="Image" />
-                                            {imageUrl}
+                                    {images.map((image, index) => (
+                                        <div className="col" key={index}>
+                                            {/* Render image data manually */}
+                                            <img src={`data:image/jpeg;base64,${image.content}`} className="img-thumbnail" alt={image.name} />
+                                            <p>{image.name}</p>
                                         </div>
                                     ))}
                                 </div>

@@ -59,6 +59,7 @@ router.post('/uploadImage', upload.array('images'), function (req, res, next) {
 
 router.get('/getImages', function (req, res, next) {
     const imagesFolder = path.join(__dirname, '..', 'images');
+
     fs.readdir(imagesFolder, (err, files) => {
         if (err) {
             console.error('Error reading images folder:', err);
@@ -66,8 +67,18 @@ router.get('/getImages', function (req, res, next) {
         }
 
         const imageFiles = files.filter(file => /\.(jpg|jpeg|png|gif)$/i.test(file));
-        const imageUrls = imageFiles.map(file => `/images/${file}`);
-        res.json({ images: imageUrls });
+        const imageArray = imageFiles.map(file => {
+            const filePath = path.join(imagesFolder, file);
+            const fileContent = fs.readFileSync(filePath, 'base64'); // Read file content as base64
+
+            return {
+                filename: file,
+                content: fileContent,
+                // Add other relevant file data as needed
+            };
+        });
+
+        res.json({ images: imageArray });
     });
 });
 
