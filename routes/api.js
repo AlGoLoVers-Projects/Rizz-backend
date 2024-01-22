@@ -118,6 +118,8 @@ router.get('/getApiKey', function (req, res, next) {
 router.post('/saveRizz', function (req, res, next) {
     const { rizz } = req.body;
 
+    console.log(rizz);
+
     if (!rizz) {
         return res.status(400).json({ error: 'Parameter "rizz" is required.' });
     }
@@ -125,19 +127,14 @@ router.post('/saveRizz', function (req, res, next) {
     const jsonFilePath = path.join(__dirname, '..', 'rizz.json');
 
     try {
-        // Read existing JSON array from file
-        const existingData = fs.existsSync(jsonFilePath)
-            ? JSON.parse(fs.readFileSync(jsonFilePath, 'utf-8'))
-            : [];
+        // Validate if the input is a valid JSON array
 
-        // Convert comma-separated string to an array
-        const rizzArray = rizz.split(',');
+        if (!Array.isArray(rizz)) {
+            return res.status(400).json({ error: 'Invalid JSON array.' });
+        }
 
-        // Concatenate existing data with the new array
-        const newData = existingData.concat(rizzArray);
-
-        // Write the updated array back to the file
-        fs.writeFileSync(jsonFilePath, JSON.stringify(newData, null, 2));
+        // Write the parsed array directly to the file, overwriting existing data
+        fs.writeFileSync(jsonFilePath, JSON.stringify(rizz, null, 2));
 
         res.json({ success: true, message: 'Rizz saved successfully.' });
     } catch (error) {
