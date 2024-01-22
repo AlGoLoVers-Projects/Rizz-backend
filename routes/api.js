@@ -115,4 +115,50 @@ router.get('/getApiKey', function (req, res, next) {
     });
 });
 
+router.post('/saveRizz', function (req, res, next) {
+    const { rizz } = req.body;
+
+    if (!rizz) {
+        return res.status(400).json({ error: 'Parameter "rizz" is required.' });
+    }
+
+    const jsonFilePath = path.join(__dirname, '..', 'rizz.json');
+
+    try {
+        // Read existing JSON array from file
+        const existingData = fs.existsSync(jsonFilePath)
+            ? JSON.parse(fs.readFileSync(jsonFilePath, 'utf-8'))
+            : [];
+
+        // Convert comma-separated string to an array
+        const rizzArray = rizz.split(',');
+
+        // Concatenate existing data with the new array
+        const newData = existingData.concat(rizzArray);
+
+        // Write the updated array back to the file
+        fs.writeFileSync(jsonFilePath, JSON.stringify(newData, null, 2));
+
+        res.json({ success: true, message: 'Rizz saved successfully.' });
+    } catch (error) {
+        console.error('Error saving Rizz:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
+router.get('/getRizz', function (req, res, next) {
+    const jsonFilePath = path.join(__dirname, '..', 'rizz.json');
+
+    try {
+        const rizzData = fs.existsSync(jsonFilePath)
+            ? JSON.parse(fs.readFileSync(jsonFilePath, 'utf-8'))
+            : [];
+
+        res.json({ rizz: rizzData });
+    } catch (error) {
+        console.error('Error fetching Rizz:', error);
+        res.status(500).json({ error: 'Internal Server Error' });
+    }
+});
+
 module.exports = router;
