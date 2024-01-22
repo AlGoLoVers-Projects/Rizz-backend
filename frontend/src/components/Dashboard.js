@@ -5,13 +5,93 @@ function Dashboard() {
     const [images, setImages] = useState([]);
     const [error, setError] = useState(null);
 
+    const [rizzInput, setRizzInput] = useState('');
+
+    const handleRizzInputChange = (e) => {
+        setRizzInput(e.target.value);
+    };
+
+    const handleRizzSubmit = async (e) => {
+        e.preventDefault();
+
+        // Split the input string into an array of sentences
+        const sentences = rizzInput.split(',').map(sentence => sentence.trim());
+
+        // Validate JSON format before submitting
+        try {
+            JSON.parse(JSON.stringify(sentences));
+        } catch (error) {
+            alert('Invalid JSON format. Please enter a valid list of sentences.');
+            return;
+        }
+
+        const storedToken = localStorage.getItem('token');
+
+        if (!storedToken) {
+            alert('API token not available. Please try again.');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/saveRizz', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    Authorization: storedToken,
+                },
+                body: JSON.stringify({ rizz: sentences }),
+            });
+
+            if (!response.ok) {
+                throw new Error('Rizz data submission failed');
+            }
+
+            alert('Rizz data submitted successfully');
+            handleGetRizz()
+        } catch (error) {
+            console.error('Rizz data submission error:', error);
+            alert('Error submitting Rizz data. Please try again.');
+        }
+    };
+
+
+    const handleGetRizz = async () => {
+        const storedToken = localStorage.getItem('token');
+
+        if (!storedToken) {
+            alert('API token not available. Please try again.');
+            return;
+        }
+
+        try {
+            const response = await fetch('/api/getRizz', {
+                headers: {
+                    Authorization: storedToken,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Failed to fetch Rizz data');
+            }
+
+            const result = await response.json();
+            setRizzInput(result.rizz.join(', '));
+        } catch (error) {
+            console.error('Error fetching Rizz data:', error);
+            alert('Error fetching Rizz data. Please try again.');
+        }
+    };
+
+
     const handleLogout = () => {
         localStorage.removeItem('token');
         window.location.href = '/';
     };
 
     useEffect(() => {
+        handleGetRizz();
         const storedToken = localStorage.getItem('token');
+
 
         if (!storedToken) {
             alert('Token not found. Please log in.');
@@ -258,6 +338,32 @@ function Dashboard() {
                             )}
                         </div>
                     </div>
+
+                    <div className="card mt-2">
+                        <div className="card-body">
+                            <h5 className="card-title">Rizz Data</h5>
+                            <div className="mb-3">
+                                <label htmlFor="rizzInput" className="form-label">Enter Rizz Data (Comma separated strings)</label>
+                                <textarea
+                                    className="form-control"
+                                    id="rizzInput"
+                                    rows="4"
+                                    value={rizzInput}
+                                    onChange={handleRizzInputChange}
+                                />
+                            </div>
+                            <div className="d-grid gap-2">
+                                <button
+                                    type="button"
+                                    className="btn btn-primary"
+                                    onClick={handleRizzSubmit}
+                                >
+                                    Submit Rizz Data
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
