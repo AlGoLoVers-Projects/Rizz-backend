@@ -82,6 +82,30 @@ router.get('/getImages', function (req, res, next) {
     });
 });
 
+router.delete('/deleteImage/:filename', function (req, res, next) {
+    const filename = req.params.filename;
+    const imagesFolder = path.join(__dirname, '..', 'images');
+    const filePath = path.join(imagesFolder, filename);
+
+    if (fs.existsSync(filePath)) {
+        fs.unlink(filePath, (err) => {
+            if (err) {
+                console.error('Error deleting image:', err);
+                return res.status(500).json({ error: 'Internal Server Error' });
+            }
+
+            res.json({
+                success: true,
+                message: 'Image deleted successfully',
+                filename: filename,
+            });
+        });
+    } else {
+        res.status(404).json({ error: 'Image not found' });
+    }
+});
+
+
 router.get('/getApiKey', function (req, res, next) {
     const apiToken = jwtUtils.generateImageToken();
     res.json({
