@@ -1,9 +1,39 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 
 function Dashboard() {
-    // Your logout function
+    const [apiToken, setApiToken] = useState(null);
+
     const handleLogout = () => {
-        window.location.href = '/auth/logout';
+        localStorage.removeItem('token');
+        window.location.href = '/';
+    };
+
+    useEffect(() => {
+        const storedToken = localStorage.getItem('token');
+
+        if (!storedToken) {
+            alert('Token not found. Please log in.');
+            window.location.href = '/';
+        }
+
+        fetch('/api/getApiKey', {
+            headers: {
+                Authorization: storedToken,
+            },
+        })
+            .then(response => response.json())
+            .then(data => {
+                setApiToken(data.token);
+            })
+            .catch(error => {
+                console.error('Error fetching API token:', error);
+                alert("User not authenticated, try signing out and signing in again")
+            });
+    }, []);
+
+    const handleCopyToken = () => {
+        navigator.clipboard.writeText(apiToken);
+        alert('Token copied to clipboard!');
     };
 
     return (
@@ -16,7 +46,7 @@ function Dashboard() {
             </nav>
 
             <div className="container mt-4">
-                <h2>Dashboard Page</h2>
+                <h2>Shiboni Dashboard lesgo</h2>
 
                 <div className="card-deck mt-4">
                     {/* Card 1: Upload Image */}
@@ -35,13 +65,24 @@ function Dashboard() {
                         </div>
                     </div>
 
-                    {/* Card 2: Generate API Token */}
                     <div className="card shadow mt-2">
                         <div className="card-body">
-                            <h5 className="card-title">Generate API Token</h5>
-                            <button type="button" className="btn btn-info" onClick={() => {
-                                window.location.href = '/api/getApiKey'
-                            }}>Generate Token</button>
+                            <h5 className="card-title">API Token</h5>
+                            {apiToken ? (
+                                <div>
+                                    <p>Your API Token:</p>
+                                    <div className="input-group mb-3">
+                                        <input type="text" className="form-control" value={apiToken} readOnly />
+                                        <button className="btn btn-outline-secondary" type="button" onClick={handleCopyToken}>
+                                            Copy
+                                        </button>
+                                    </div>
+                                </div>
+                            ) : (
+                                <button type="button" className="btn btn-info" disabled>
+                                    Generating Token...
+                                </button>
+                            )}
                         </div>
                     </div>
                 </div>

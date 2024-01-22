@@ -20,7 +20,7 @@ app.use(express.static(path.join(__dirname, 'frontend', 'build')));
 app.use('/auth', authenticationRouter);
 app.use('/api', authenticate, apiRouter)
 
-app.get('*', authenticate, (req, res) => {
+app.get('*', (req, res) => {
     res.sendFile(path.resolve(__dirname, './frontend/build', 'index.html'));
 });
 

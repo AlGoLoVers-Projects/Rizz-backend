@@ -4,7 +4,9 @@ const jwtUtils = require('../utils/jwt');
 
 module.exports = (req, res, next) => {
     try {
-        const authToken = req.cookies['authToken'];
+        const authToken = req.headers.authorization
+
+        console.log(authToken)
 
         if (authToken) {
             const decoded = jwtUtils.verifyToken(authToken, {
@@ -13,24 +15,14 @@ module.exports = (req, res, next) => {
             });
 
             if (decoded) {
-                req.user = decoded;
-
-                console.log(req.originalUrl);
-
-                if (req.originalUrl === '/') {
-                    return res.redirect('/dashboard');
-                }
-
                 next();
-            } else {
-                res.clearCookie('authToken');
-                res.redirect('/');
+                return
             }
-        } else {
-            res.redirect('/');
         }
+
+        return res.status(401).json({success: false, message: 'Verification failed'});
     } catch (error) {
         console.error('Error in authentication middleware:', error);
-        res.redirect('/');
+        return res.status(401).json({success: false, message: 'Verification failed'});
     }
 };
