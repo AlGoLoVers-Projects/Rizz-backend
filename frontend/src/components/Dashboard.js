@@ -243,13 +243,13 @@ function Dashboard() {
         <div>
             <nav className="navbar navbar-light bg-light">
                 <div className="container-fluid">
-                    <span className="navbar-brand mb-0 h1">Shiboni API</span>
+                    <span className="navbar-brand mb-0 h1">Rizz API</span>
                     <button className="btn btn-outline-danger" onClick={handleLogout}>Logout</button>
                 </div>
             </nav>
 
             <div className="container mt-4">
-                <h2>Shiboni Dashboard lesgo</h2>
+                <h2>Rizz Dashboard lesgo</h2>
 
                 <div className="card-deck mt-4">
                     {/* Card 1: Upload Image */}

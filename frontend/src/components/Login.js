@@ -61,7 +61,7 @@ function Login() {
             <div className="row justify-content-center">
                 <div className="col-md-6">
                     <div className="card shadow p-4">
-                        <h2 className="mb-4">Shiboni API Login page</h2>
+                        <h2 className="mb-4">Rizz API Login page</h2>
                         <form onSubmit={handleLogin}>
                             <div className="mb-3">
                                 <label htmlFor="username" className="form-label">
