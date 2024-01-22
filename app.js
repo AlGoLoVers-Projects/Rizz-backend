@@ -15,13 +15,12 @@ app.use(logger('dev'));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(authenticate);
 app.use(express.static(path.join(__dirname, 'frontend', 'build')));
 
 app.use('/auth', authenticationRouter);
-app.use('/api', apiRouter)
+app.use('/api', authenticate, apiRouter)
 
-app.get('*', (req, res) => {
+app.get('*', authenticate, (req, res) => {
     res.sendFile(path.resolve(__dirname, './frontend/build', 'index.html'));
 });
 
