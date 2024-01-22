@@ -92,9 +92,28 @@ function Dashboard() {
                 throw new Error('Image upload failed');
             }
 
+            // Clear the files from the input after uploading
+            fileInput.value = '';
+
             const result = await response.json();
-            alert('Images uploaded successfully:', result);
+            alert('Images uploaded successfully');
+
+            // Fetch updated image data after new files are uploaded
+            fetch('/api/getImages', {
+                headers: {
+                    Authorization: storedToken,
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    setImages(data.images);
+                })
+                .catch(err => {
+                    console.error('Error fetching images:', err);
+                    setError('Error fetching images. Please try again.');
+                });
         } catch (error) {
+            fileInput.value = '';
             console.error('Image upload error:', error);
             alert('Error uploading images. Please try again.');
         }
