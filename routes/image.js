@@ -30,12 +30,18 @@ router.get('/generateImageWithText', async function (req, res, next) {
         const textWidth = Jimp.measureText(font, randomSentence);
         const textHeight = Jimp.measureTextHeight(font, randomSentence, image.bitmap.width);
 
+        let textImage = new Jimp(1000,1000, 0x0, (err, textImage) => {
+            if (err) throw err;
+        })
+
+        textImage.print(font, 0, 0, randomSentence)
+        textImage.color([{ apply: 'xor', params: ['#ff0000'] }]);
+
         // Add text to the image at the bottom with red color and black border
-        image.print(
-            font,
+        image.blit(
+            textImage,
             (image.bitmap.width - textWidth) / 2, // Center horizontally
             image.bitmap.height - textHeight - 20, // 20 pixels from the bottom
-            randomSentence
         );
 
         // Convert the modified image to a buffer
