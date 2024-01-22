@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect} from 'react';
 
 function Dashboard() {
     const [apiToken, setApiToken] = useState(null);
@@ -119,11 +119,51 @@ function Dashboard() {
         }
     };
 
+    const handleDeleteImage = async (filename) => {
+        const storedToken = localStorage.getItem('token');
+
+        if (!storedToken) {
+            alert('API token not available. Please try again.');
+            return;
+        }
+
+        try {
+            const response = await fetch(`/api/deleteImage/${filename}`, {
+                method: 'DELETE',
+                headers: {
+                    Authorization: storedToken,
+                },
+            });
+
+            if (!response.ok) {
+                throw new Error('Image deletion failed');
+            }
+
+            // Fetch updated image data after deletion
+            fetch('/api/getImages', {
+                headers: {
+                    Authorization: storedToken,
+                },
+            })
+                .then(response => response.json())
+                .then(data => {
+                    setImages(data.images);
+                })
+                .catch(err => {
+                    console.error('Error fetching images:', err);
+                    setError('Error fetching images. Please try again.');
+                });
+        } catch (error) {
+            console.error('Image deletion error:', error);
+            alert('Error deleting image. Please try again.');
+        }
+    };
+
     return (
         <div>
             <nav className="navbar navbar-light bg-light">
                 <div className="container-fluid">
-                    <span className="navbar-brand mb-0 h1">App</span>
+                    <span className="navbar-brand mb-0 h1">Shiboni API</span>
                     <button className="btn btn-outline-danger" onClick={handleLogout}>Logout</button>
                 </div>
             </nav>
@@ -139,7 +179,7 @@ function Dashboard() {
                             <form onSubmit={handleImageUpload}>
                                 <div className="mb-3">
                                     <label htmlFor="imageUpload" className="form-label">Select Images</label>
-                                    <input type="file" className="form-control" id="imageUpload" multiple />
+                                    <input type="file" className="form-control" id="imageUpload" multiple/>
                                 </div>
                                 <div className="d-grid gap-2">
                                     <button type="submit" className="btn btn-primary">Upload Images</button>
@@ -156,8 +196,9 @@ function Dashboard() {
                                 <div>
                                     <p>Your API Token:</p>
                                     <div className="input-group mb-3">
-                                        <input type="text" className="form-control" value={apiToken} readOnly />
-                                        <button className="btn btn-outline-secondary" type="button" onClick={handleCopyToken}>
+                                        <input type="text" className="form-control" value={apiToken} readOnly/>
+                                        <button className="btn btn-outline-secondary" type="button"
+                                                onClick={handleCopyToken}>
                                             Copy
                                         </button>
                                     </div>
@@ -170,19 +211,47 @@ function Dashboard() {
                         </div>
                     </div>
 
-                    {/* Card 3: Image Grid */}
                     <div className="card mt-2">
                         <div className="card-body">
-                            <h5 className="card-title">Image Grid</h5>
-                            {error ? (
-                                <div>Error: {error}</div>
+                            <h5 className="card-title">Images</h5>
+                            {images.length === 0 ? (
+                                <>
+                                    <div>No images found</div>
+                                    {error}
+                                </>
                             ) : (
                                 <div className="row row-cols-2 row-cols-md-4 g-4">
                                     {images.map((image, index) => (
-                                        <div className="col" key={index}>
-                                            {/* Render image data manually */}
-                                            <img src={`data:image/jpeg;base64,${image.content}`} className="img-thumbnail" alt={image.name} />
+                                        <div className="col" key={index} style={{position: 'relative'}}>
+                                            <img src={`data:image/jpeg;base64,${image.content}`}
+                                                 className="img-thumbnail" alt={image.name}/>
                                             <p>{image.name}</p>
+
+                                            <button
+                                                type="button"
+                                                className="btn btn-danger"
+                                                style={{
+                                                    position: 'absolute',
+                                                    top: '5px',
+                                                    right: '5px',
+                                                    borderRadius: '50%',
+                                                    width: '30px',
+                                                    height: '30px',
+                                                    display: 'flex',
+                                                    justifyContent: 'center',
+                                                    alignItems: 'center',
+                                                    padding: '0',
+                                                    fontSize: '18px',
+                                                }}
+                                                onClick={() => {
+                                                    // Show confirmation dialog
+                                                    if (window.confirm('Are you sure you want to delete this image?')) {
+                                                        handleDeleteImage(image.filename);
+                                                    }
+                                                }}
+                                            >
+                                                &times;
+                                            </button>
                                         </div>
                                     ))}
                                 </div>
