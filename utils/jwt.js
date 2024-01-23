@@ -6,7 +6,7 @@ const generateToken = () => {
         user: process.env.USERNAME,
     };
 
-    return jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+    return jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: '24h' });
 };
 
 const verifyToken = (token) => {
