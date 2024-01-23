@@ -124,17 +124,16 @@ router.post('/saveRizz', function (req, res, next) {
         return res.status(400).json({ error: 'Parameter "rizz" is required.' });
     }
 
+    const filteredRizz = rizz.filter(sentence => typeof sentence === 'string' && sentence.trim() !== '');
+
+    if (filteredRizz.length === 0) {
+        return res.status(400).json({ error: 'Invalid or empty array of sentences.' });
+    }
+
     const jsonFilePath = path.join(__dirname, '..', 'rizz.json');
 
     try {
-        // Validate if the input is a valid JSON array
-
-        if (!Array.isArray(rizz)) {
-            return res.status(400).json({ error: 'Invalid JSON array.' });
-        }
-
-        // Write the parsed array directly to the file, overwriting existing data
-        fs.writeFileSync(jsonFilePath, JSON.stringify(rizz, null, 2));
+        fs.writeFileSync(jsonFilePath, JSON.stringify(filteredRizz, null, 2));
 
         res.json({ success: true, message: 'Rizz saved successfully.' });
     } catch (error) {
@@ -142,6 +141,7 @@ router.post('/saveRizz', function (req, res, next) {
         res.status(500).json({ error: 'Internal Server Error' });
     }
 });
+
 
 router.get('/getRizz', function (req, res, next) {
     const jsonFilePath = path.join(__dirname, '..', 'rizz.json');
