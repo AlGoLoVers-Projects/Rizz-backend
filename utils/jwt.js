@@ -32,7 +32,7 @@ const generateImageToken = () => {
         imageSecret: process.env.IMAGE_SECRET,
     };
 
-    return jwt.sign(payload, process.env.JWT_SECRET_KEY, { expiresIn: '1h' });
+    return jwt.sign(payload, process.env.JWT_SECRET_KEY);
 };
 
 const verifyImageToken = (token) => {
