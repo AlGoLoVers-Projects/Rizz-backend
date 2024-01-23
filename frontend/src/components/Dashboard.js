@@ -11,6 +11,23 @@ function Dashboard() {
         setRizzInput(e.target.value);
     };
 
+    const handleExceptionCodes = (response, error) => {
+        if (!response.ok) {
+            const statusCode = response.status;
+            if (statusCode === 401 || statusCode === 412) {
+                handleUnauthenticatedException();
+                return;
+            }
+
+            throw new Error(error);
+        }
+    }
+
+    const handleUnauthenticatedException = () => {
+        alert("You are not authenticated, please try signing in again")
+        handleLogout()
+    }
+
     const handleRizzSubmit = async (e) => {
         e.preventDefault();
 
@@ -42,9 +59,7 @@ function Dashboard() {
                 body: JSON.stringify({ rizz: sentences }),
             });
 
-            if (!response.ok) {
-                throw new Error('Rizz data submission failed');
-            }
+            handleExceptionCodes(response, 'Failed to submit rizz data')
 
             alert('Rizz data submitted successfully');
             handleGetRizz();
@@ -70,9 +85,7 @@ function Dashboard() {
                 },
             });
 
-            if (!response.ok) {
-                throw new Error('Failed to fetch Rizz data');
-            }
+            handleExceptionCodes(response, 'Failed to fetch rizz data')
 
             const result = await response.json();
 
@@ -93,6 +106,26 @@ function Dashboard() {
         window.location.href = '/';
     };
 
+    const fetchImages = () => {
+        const storedToken = localStorage.getItem('token');
+        fetch('/api/getImages', {
+            headers: {
+                Authorization: storedToken,
+            },
+        })
+            .then(response => {
+                handleExceptionCodes(response, 'Failed to fetch images')
+                return response.json();
+            })
+            .then(data => {
+                setImages(data.images);
+            })
+            .catch(err => {
+                console.error('Error fetching images:', err);
+                setError('Error fetching images. Please try again.');
+            });
+    }
+
     useEffect(() => {
         handleGetRizz();
         const storedToken = localStorage.getItem('token');
@@ -108,7 +141,10 @@ function Dashboard() {
                 Authorization: storedToken,
             },
         })
-            .then(response => response.json())
+            .then(response => {
+                handleExceptionCodes(response, 'Failed to fetch api key')
+                return response.json()
+            })
             .then(data => {
                 setApiToken(data.token);
             })
@@ -118,24 +154,8 @@ function Dashboard() {
             });
 
         // Fetch image data from the authenticated route
-        fetch('/api/getImages', {
-            headers: {
-                Authorization: storedToken,
-            },
-        })
-            .then(response => {
-                if (!response.ok) {
-                    throw new Error('Failed to fetch images');
-                }
-                return response.json();
-            })
-            .then(data => {
-                setImages(data.images);
-            })
-            .catch(err => {
-                console.error('Error fetching images:', err);
-                setError('Error fetching images. Please try again.');
-            });
+        fetchImages()
+
     }, []);
 
     const handleCopyToken = () => {
@@ -172,31 +192,14 @@ function Dashboard() {
                 },
                 body: formData,
             });
-
-            if (!response.ok) {
-                throw new Error('Image upload failed');
-            }
-
+            handleExceptionCodes(response, 'Failed to upload images')
             // Clear the files from the input after uploading
             fileInput.value = '';
 
-            const result = await response.json();
             alert('Images uploaded successfully');
 
             // Fetch updated image data after new files are uploaded
-            fetch('/api/getImages', {
-                headers: {
-                    Authorization: storedToken,
-                },
-            })
-                .then(response => response.json())
-                .then(data => {
-                    setImages(data.images);
-                })
-                .catch(err => {
-                    console.error('Error fetching images:', err);
-                    setError('Error fetching images. Please try again.');
-                });
+            fetchImages()
         } catch (error) {
             fileInput.value = '';
             console.error('Image upload error:', error);
@@ -220,24 +223,10 @@ function Dashboard() {
                 },
             });
 
-            if (!response.ok) {
-                throw new Error('Image deletion failed');
-            }
+            handleExceptionCodes(response, 'Failed to delete image')
 
             // Fetch updated image data after deletion
-            fetch('/api/getImages', {
-                headers: {
-                    Authorization: storedToken,
-                },
-            })
-                .then(response => response.json())
-                .then(data => {
-                    setImages(data.images);
-                })
-                .catch(err => {
-                    console.error('Error fetching images:', err);
-                    setError('Error fetching images. Please try again.');
-                });
+            fetchImages()
         } catch (error) {
             console.error('Image deletion error:', error);
             alert('Error deleting image. Please try again.');
