@@ -14,8 +14,8 @@ function Dashboard() {
     const handleRizzSubmit = async (e) => {
         e.preventDefault();
 
-        // Split the input string into an array of sentences
-        const sentences = rizzInput.split(',').map(sentence => sentence.trim());
+        // Split the input string into an array of sentences using semicolon as a delimiter
+        const sentences = rizzInput.split(';').map(sentence => sentence.trim());
 
         // Validate JSON format before submitting
         try {
@@ -47,7 +47,7 @@ function Dashboard() {
             }
 
             alert('Rizz data submitted successfully');
-            handleGetRizz()
+            handleGetRizz();
         } catch (error) {
             console.error('Rizz data submission error:', error);
             alert('Error submitting Rizz data. Please try again.');
@@ -75,12 +75,17 @@ function Dashboard() {
             }
 
             const result = await response.json();
-            setRizzInput(result.rizz.join(', '));
+
+            // Filter out empty strings and join the non-empty sentences with a semicolon and a space
+            const semicolonSeparatedString = result.rizz.filter(sentence => sentence.trim() !== '').join('; ');
+
+            setRizzInput(semicolonSeparatedString);
         } catch (error) {
             console.error('Error fetching Rizz data:', error);
             alert('Error fetching Rizz data. Please try again.');
         }
     };
+
 
 
     const handleLogout = () => {
@@ -343,7 +348,7 @@ function Dashboard() {
                         <div className="card-body">
                             <h5 className="card-title">Rizz Data</h5>
                             <div className="mb-3">
-                                <label htmlFor="rizzInput" className="form-label">Enter Rizz Data (Comma separated strings)</label>
+                                <label htmlFor="rizzInput" className="form-label">Enter Rizz Data (Semicolon separated strings)</label>
                                 <textarea
                                     className="form-control"
                                     id="rizzInput"
